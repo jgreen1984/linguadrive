@@ -1,0 +1,9 @@
+{
+  "name": "LinguaDrive",
+  "short_name": "LinguaDrive",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0e1116",
+  "theme_color": "#0e1116",
+  "icons": []
+}

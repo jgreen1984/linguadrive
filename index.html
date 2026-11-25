@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e1116">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>LinguaDrive</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="appbar">
+    <div class="brand">Lingua<span>Drive</span></div>
+    <div id="streakChip" class="chipstat" title="Day streak"></div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button role="tab" data-tab="today" aria-selected="true">📅<span>Today</span></button>
+    <button role="tab" data-tab="course">📚<span>Course</span></button>
+    <button role="tab" data-tab="drive">🚗<span>Drive</span></button>
+    <button role="tab" data-tab="tutor">🤖<span>Tutor</span></button>
+    <button role="tab" data-tab="progress">📈<span>Progress</span></button>
+  </nav>
+
+  <main id="home">
+    <!-- TODAY -->
+    <section data-page="today" class="page">
+      <div id="todayBox"></div>
+    </section>
+
+    <!-- COURSE -->
+    <section data-page="course" class="page" hidden>
+      <div id="courseBox"></div>
+    </section>
+
+    <!-- DRIVE -->
+    <section data-page="drive" class="page" hidden>
+      <section id="safety" class="banner" hidden>
+        <strong>Set up before you set off.</strong>
+        Choose what to practise and tap a mode <em>while parked</em>. After that it's all spoken: answer out loud, and say
+        <b>skip</b>, <b>repeat</b>, <b>pause</b> or <b>stop</b>. Steering-wheel play/pause and next buttons work too.
+        Mount your phone and don't look at or touch it while driving.
+        <button id="safetyOk" class="btn small">Got it</button>
+      </section>
+      <section class="card">
+        <h2>What to practise</h2>
+        <div id="packList" class="chips"></div>
+        <h3>Topic</h3>
+        <div id="topicList" class="chips"></div>
+        <h3>Session length</h3>
+        <div id="lenList" class="chips"></div>
+      </section>
+      <section class="card">
+        <h2>Hands-free lessons</h2>
+        <div id="lessonModes" class="modes"></div>
+      </section>
+      <section class="card">
+        <h2>Hands-free games</h2>
+        <div id="gameModes" class="modes"></div>
+      </section>
+      <section class="card">
+        <h2>Voice commands</h2>
+        <ul class="cmds">
+          <li><b>“Skip”</b> or <b>“I don't know”</b>: hear the answer and move on</li>
+          <li><b>“Repeat”</b> or <b>“Again”</b>: hear the question again</li>
+          <li><b>“Pause”</b>, then <b>“Resume”</b>: take a break</li>
+          <li><b>“Slower”</b> / <b>“Faster”</b>: change the speaking speed</li>
+          <li><b>“Stop”</b>: end the session and hear your score</li>
+          <li>Say nothing and you'll hear the answer after a few seconds.</li>
+          <li>Media buttons: <b>play/pause</b> pauses, <b>next</b> skips, <b>previous</b> repeats.</li>
+        </ul>
+      </section>
+    </section>
+
+    <!-- TUTOR -->
+    <section data-page="tutor" class="page" hidden>
+      <div id="tutorBox"></div>
+    </section>
+
+    <!-- PROGRESS -->
+    <section data-page="progress" class="page" hidden>
+      <section class="card"><h2>Your progress</h2><div id="progress"></div></section>
+      <section class="card"><h2>Course mastery</h2><div id="courseStats"></div></section>
+      <section class="card">
+        <h2>Settings</h2>
+        <div class="setting"><span>Daily goal</span><div id="goalList" class="chips"></div></div>
+        <div class="setting"><span>Voice speed</span><div id="speedList" class="chips"></div></div>
+        <div class="setting"><span>English voice</span><div id="accentList" class="chips"></div></div>
+        <div class="setting"><span>Driving: thinking time</span><div id="thinkList" class="chips"></div></div>
+        <label class="toggle"><input type="checkbox" id="speakEx"> Include speaking exercises in screen lessons</label>
+        <label class="toggle"><input type="checkbox" id="repeatBack"> Driving: after a wrong answer, ask me to say it back</label>
+        <label class="toggle"><input type="checkbox" id="hints"> Driving: remind me of voice commands at the start</label>
+        <div class="row">
+          <button id="micTest" class="btn ghost">Test voice &amp; microphone</button>
+        </div>
+        <p id="micMsg" class="msg" role="status"></p>
+      </section>
+      <section class="card">
+        <h2>Phrasebook packs</h2>
+        <p class="muted">Extra languages for the hands-free mode. The full course is Spanish.</p>
+        <div id="packManage"></div>
+        <div class="row">
+          <label class="btn">Import pack (.json)<input type="file" id="importFile" accept=".json,application/json" hidden></label>
+          <button id="tplBtn" class="btn ghost">Download template</button>
+        </div>
+        <p id="importMsg" class="msg" role="status"></p>
+      </section>
+      <section class="card">
+        <h2>Start again</h2>
+        <div class="row">
+          <button id="resetCourse" class="btn ghost danger">Reset course position</button>
+          <button id="resetBtn" class="btn ghost danger">Reset all progress</button>
+        </div>
+      </section>
+    </section>
+
+    <footer>Works best in Chrome or Edge. Speech recognition and the AI tutor need an internet connection.</footer>
+  </main>
+
+  <!-- Screen lesson overlay -->
+  <div id="lesson" class="lesson" hidden></div>
+
+  <!-- Hands-free session overlay -->
+  <div id="session" hidden>
+    <div class="s-top">
+      <span id="sTitle"></span>
+      <span id="sScore"></span>
+    </div>
+    <div class="s-mid">
+      <div id="sStatus" class="status">Starting…</div>
+      <div id="sMain" class="s-main"></div>
+      <div id="sSub" class="s-sub"></div>
+      <div id="sHeard" class="s-heard"></div>
+      <div id="sNotice" class="s-notice" hidden></div>
+    </div>
+    <div class="s-controls">
+      <button data-act="repeat" class="sbtn">↺<span>Repeat</span></button>
+      <button data-act="skip" class="sbtn">⏭<span>Skip</span></button>
+      <button data-act="pause" id="pauseBtn" class="sbtn">⏸<span>Pause</span></button>
+      <button data-act="stop" class="sbtn stop">■<span>Stop</span></button>
+    </div>
+    <div id="sSummary" class="s-summary" hidden>
+      <h2 id="sumTitle"></h2>
+      <ul id="sumLines"></ul>
+      <button id="sumDone" class="btn">Done</button>
+    </div>
+  </div>
+
+  <audio id="keepAlive" loop playsinline></audio>
+
+  <script src="js/speech.js"></script>
+  <script src="js/packs.js"></script>
+  <script src="packs/spanish.js"></script>
+  <script src="packs/french.js"></script>
+  <script src="packs/german.js"></script>
+  <script src="packs/italian.js"></script>
+  <script src="js/progress.js"></script>
+  <script src="js/course.js"></script>
+  <script src="js/course/es-a1.js"></script>
+  <script src="js/course/es-a2.js"></script>
+  <script src="js/course/es-b1.js"></script>
+  <script src="js/tutor.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/lesson.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

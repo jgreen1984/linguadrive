@@ -1,0 +1,22 @@
+{
+  "name": "Portuguese (Brazil)",
+  "lang": "pt-BR",
+  "flag": "🇧🇷",
+  "topics": [
+    {
+      "name": "Greetings",
+      "items": [
+        { "en": "hello", "t": "olá", "alt": ["oi"] },
+        { "en": "good morning", "t": "bom dia" },
+        { "en": "thank you", "t": "obrigado", "alt": ["obrigada"], "ea": ["thanks"] }
+      ]
+    },
+    {
+      "name": "Numbers",
+      "items": [
+        { "en": "one", "t": "um", "n": 1 },
+        { "en": "two", "t": "dois", "n": 2 }
+      ]
+    }
+  ]
+}
