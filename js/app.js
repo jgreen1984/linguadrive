@@ -333,7 +333,47 @@
   }
 
   // ---------- PROGRESS ----------
+  // ---------- offline ----------
+  let swReady = false;
+  async function renderOffline() {
+    const box = $('offlineBox');
+    if (!box) return;
+    const speechLangs = ['es-ES', S.accent];
+    const st = {};
+    for (const l of speechLangs) st[l] = await Speech.offlineStatus(l);
+    const icon = ok => ok ? '✅' : '⚠️';
+    const label = { available: 'downloaded to this phone', downloadable: 'not downloaded yet', downloading: 'downloading…', unavailable: 'not available for this language on this device', unsupported: "this browser can't recognise speech offline" };
+    const speechOk = speechLangs.every(l => st[l] === 'available');
+    const canDownload = speechLangs.some(l => st[l] === 'downloadable');
+    const msg = h('p', { class: 'msg', role: 'status' });
+    fill(box,
+      h('ul', { class: 'olist' },
+        h('li', {}, icon(swReady), h('div', {}, h('b', {}, 'App and course'), h('small', {}, swReady ? 'Saved on this device. Lessons, reviews and progress work with no connection.' : 'Not saved yet. Open the app once while online.'))),
+        h('li', {}, icon(Speech.hasLocalVoice('es-ES')), h('div', {}, h('b', {}, 'Spanish voice'), h('small', {}, Speech.hasLocalVoice('es-ES') ? 'Uses the voice built into your phone.' : 'No offline Spanish voice found. Add one in your phone settings under Text-to-speech, Install voice data, Spanish.'))),
+        h('li', {}, icon(speechOk), h('div', {}, h('b', {}, 'Checking what you say'),
+          h('small', {}, speechLangs.map(l => `${l.startsWith('es') ? 'Spanish' : 'English'}: ${label[st[l]] || st[l]}`).join(' · ')),
+          !speechOk && !canDownload ? h('small', {}, 'Offline, speaking exercises fall back to typing, and the car mode becomes listen-only (it still speaks the answers).') : null)),
+        h('li', {}, '🌐', h('div', {}, h('b', {}, 'AI tutor'), h('small', {}, 'Always needs internet. Everything else carries on without it.')))),
+      canDownload ? h('button', { class: 'btn', onclick: async e => {
+        e.target.disabled = true; msg.textContent = 'Downloading speech models…';
+        for (const l of speechLangs) if (st[l] === 'downloadable') await Speech.installOffline(l);
+        msg.textContent = 'Done.';
+        renderOffline();
+      } }, '⬇ Download speech recognition for offline') : null,
+      msg);
+  }
+  function setOnline() { $('offlineChip').hidden = navigator.onLine; }
+  window.addEventListener('online', () => { setOnline(); render(); });
+  window.addEventListener('offline', () => { setOnline(); render(); });
+  setOnline();
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').then(() => navigator.serviceWorker.ready).then(() => { swReady = true; if (S.tab === 'progress') renderOffline(); }).catch(() => {});
+  }
+  // Learn which languages already have on-device recognition so listening uses it.
+  ['es-ES', S.accent].forEach(l => Speech.offlineStatus(l));
+
   function renderProgressTab() {
+    renderOffline();
     renderStats();
     renderCourseStats();
     chips($('goalList'), [5, 10, 15, 20, 30].map(n => ({ value: n, label: `${n} min` })), Course.goalMins, v => { Course.setGoal(v); render(); });

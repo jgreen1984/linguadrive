@@ -14,7 +14,7 @@
 <body>
   <header class="appbar">
     <div class="brand">Lingua<span>Drive</span></div>
-    <div id="streakChip" class="chipstat" title="Day streak"></div>
+    <div class="row-tight"><span id="offlineChip" class="offchip" hidden>Offline</span><div id="streakChip" class="chipstat" title="Day streak"></div></div>
   </header>
 
   <nav class="tabs" role="tablist" aria-label="Sections">
@@ -84,6 +84,10 @@
     <section data-page="progress" class="page" hidden>
       <section class="card"><h2>Your progress</h2><div id="progress"></div></section>
       <section class="card"><h2>Course mastery</h2><div id="courseStats"></div></section>
+      <section class="card">
+        <h2>Offline use</h2>
+        <div id="offlineBox"></div>
+      </section>
       <section class="card">
         <h2>Settings</h2>
         <div class="setting"><span>Daily goal</span><div id="goalList" class="chips"></div></div>

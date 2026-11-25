@@ -41,6 +41,38 @@ const Speech = (() => {
     });
   }
 
+  // ---------- on-device (offline) recognition ----------
+  // Newer Chrome: SpeechRecognition.available()/install() + processLocally.
+  // Some earlier builds: availableOnDevice()/installOnDevice() + mode = 'ondevice-only'.
+  const localReady = new Set();
+  const offlineApi = !Rec ? null
+    : typeof Rec.available === 'function' ? 'new'
+    : typeof Rec.availableOnDevice === 'function' ? 'old' : null;
+
+  // Returns 'available' | 'downloadable' | 'downloading' | 'unavailable' | 'unsupported'.
+  async function offlineStatus(lang) {
+    if (!offlineApi) return 'unsupported';
+    try {
+      const s = offlineApi === 'new'
+        ? await Rec.available({ langs: [lang], processLocally: true })
+        : await Rec.availableOnDevice(lang);
+      const v = typeof s === 'boolean' ? (s ? 'available' : 'unavailable') : String(s);
+      if (v === 'available') localReady.add(lang); else localReady.delete(lang);
+      return v;
+    } catch (_) { return 'unsupported'; }
+  }
+  // Must be called from a tap. Resolves true once the language model is on the device.
+  async function installOffline(lang) {
+    if (!offlineApi) return false;
+    try {
+      const ok = offlineApi === 'new'
+        ? await Rec.install({ langs: [lang], processLocally: true })
+        : await Rec.installOnDevice(lang);
+      if (ok) localReady.add(lang);
+      return !!ok;
+    } catch (_) { return false; }
+  }
+
   // Resolves with { alts: [transcripts], error: string|null }.
   function listen(lang, timeoutMs = 7000) {
     return new Promise(resolve => {
@@ -48,6 +80,10 @@ const Speech = (() => {
       const r = new Rec();
       currentRec = r;
       r.lang = lang;
+      if (localReady.has(lang)) {
+        if (offlineApi === 'new') r.processLocally = true;
+        else if (offlineApi === 'old') r.mode = 'ondevice-only';
+      }
       r.interimResults = false;
       r.continuous = false;
       r.maxAlternatives = 5;
@@ -131,5 +167,7 @@ const Speech = (() => {
     canSpeak: !!synth,
     canListen: !!Rec,
     speak, listen, cancel, stopListening, ensureMic, unlockAudio, cues,
+    offlineStatus, installOffline, offlineApi,
+    hasLocalVoice: lang => voices.some(v => v.localService && v.lang.toLowerCase().replace('_', '-').startsWith(lang.slice(0, 2).toLowerCase())),
   };
 })();

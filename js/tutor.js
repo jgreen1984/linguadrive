@@ -49,6 +49,7 @@ const Tutor = (() => {
   // One structured-output request. Returns the parsed JSON object.
   async function ask({ system, messages, schema, maxTokens = 4000, effort = 'low' }) {
     try {
+      if (!navigator.onLine) throw new TutorError("You're offline. The AI tutor needs an internet connection; everything else works offline.", 'net');
       const c = await getClient();
       const params = {
         model: MODEL,
